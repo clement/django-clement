@@ -78,11 +78,12 @@ class TemplateFunction(template.Node):
 
     def render(self, context):
         f = lambda v: v.resolve(context)
-        self.args = map(f, self.args)
+        args = map(f, self.args)
+        kwargs = {}
         for name, arg in self.kwargs.items():
-            self.kwargs[name] = arg.resolve(context)
+            kwargs[name] = arg.resolve(context)
 
-        result = self.function(*self.args, **self.kwargs)
+        result = self.function(*args, **kwargs)
         if self.assign:
             context[self.assign] = result
             return ""
