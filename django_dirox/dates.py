@@ -1,4 +1,14 @@
+try:
+    from functools import partial
+except ImportError:
+    from django.utils.functional import curry as partial # 2.3, 2.4 compat
 from datetime import *
+
+def force_day(weekday, day=date.today()):
+    return day + timedelta(days=weekday - day.weekday())
+
+force_monday = partial(force_day, weekday=0)
+force_sunday = partial(force_day, weekday=6)
 
 def strpdatetime(string, format, use_type=datetime):
     return use_type.fromtimestamp(mktime(strptime(string,format)))
