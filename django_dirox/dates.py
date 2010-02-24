@@ -51,9 +51,14 @@ class monthdelta(object):
 
 
 def xdaterange(start, end=None, step=timedelta(days=1)):
-    while end is None or start < end:
-        yield start
-        start += step
+    # to support properly the monthdelta iteration, it's better to accumulate the
+    # steps instead of using start as a counter
+    current = start
+    step_acc = None
+    while end is None or current < end:
+        yield current
+        step_acc = (step_acc + step) if step_acc is not None else step
+        current = start + step_acc
 
 def daterange(start, end, step=timedelta(days=1)):
     return list(xdaterange(start, end, step))
