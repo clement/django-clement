@@ -37,3 +37,33 @@ def render_to(func=None, template_name_key='template', mimetype_key='mimetype'):
         return curried(func)
     else:
         return curried
+
+
+def coerce(*coerce_funs):
+    def real_decorator(func):
+        def _wrap(request, *args, **kwargs):
+            # make sure args is a list
+            args = list(args)
+            import inspect
+            import types
+            hop = 1
+            # Suspect a method, callable object, class method
+            # there's another parameter to remove then
+            if not isinstance(func, types.FunctionType):
+                hop += 1
+            
+            for idx, arg_name in enumerate(inspect.getargspec(func)[0][hop:hop+len(coerce_funs)]):
+                try:
+                    f = coerce_funs[idx]
+                    if f:
+                        if idx < len(args):
+                            args[idx] = f(args[idx])
+                        elif arg_name in kwargs:
+                            kwargs[arg_name] = f(kwargs[arg_name])
+                except IndexError:
+                    pass
+
+            return func(request, *args, **kwargs)
+        return wraps(func)(_wrap)
+
+    return real_decorator
