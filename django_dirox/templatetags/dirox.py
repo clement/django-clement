@@ -50,7 +50,6 @@ def inside(value, sequence):
 
         my_value in my_list
     """
-    print value, sequence
     try:
         return value in sequence
     except:
