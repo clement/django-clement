@@ -35,7 +35,8 @@ class template_function(object):
 
     to assign the result in a new variable
     """
-    def __init__(self, function):
+    def __init__(self, function, send_context=False):
+        self.send_context = send_context
         update_wrapper(self, function)
         self.function = function
 
@@ -66,15 +67,16 @@ class template_function(object):
             else:
                 args.append(value)
 
-        return TemplateFunction(self.function, args, kwargs, assign)
+        return TemplateFunction(self.function, args, kwargs, assign, self.send_context)
 
 
 class TemplateFunction(template.Node):
-    def __init__(self, function, args=[], kwargs={}, assign=None):
+    def __init__(self, function, args=[], kwargs={}, assign=None, send_context=False):
         self.function = function
         self.args = args
         self.kwargs = kwargs
         self.assign = assign
+        self.send_context = send_context
 
     def render(self, context):
         f = lambda v: v.resolve(context)
@@ -82,6 +84,9 @@ class TemplateFunction(template.Node):
         kwargs = {}
         for name, arg in self.kwargs.items():
             kwargs[name] = arg.resolve(context)
+
+        if self.send_context:
+            kwargs['context'] = context
 
         result = self.function(*args, **kwargs)
         if self.assign:
