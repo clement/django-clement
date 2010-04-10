@@ -10,8 +10,10 @@ class template_function(object):
     """
     Decorate a function so it can be registered directly as a template
     tag and be called with a full argument list (both positional and
-    keywords) and an optionnal "as variable".
+    keywords), understands filters on variable, and an optionnal "as variable"
+    feature.
 
+    This is thus more powerful than django's `simple_tag` decorator.
     Use it like that :
     >>> from django import template
     >>> register = template.Library()
