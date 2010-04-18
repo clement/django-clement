@@ -87,3 +87,5 @@ def urlp(name, *args, **kwargs):
         else:
             raise e
 urlp = register.tag(template_function(urlp, send_context=True))
+
+register.tag('eval', template_function(lambda x:x))
