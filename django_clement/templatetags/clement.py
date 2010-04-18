@@ -3,7 +3,7 @@ Template filters used in `moderation` application
 HTML templates. Mainly utility functions.
 """
 
-from django_dirox.template import template_function
+from django_clement.template import template_function
 from django import template
 
 # Special object to allow django to recognize this
