@@ -6,6 +6,8 @@ HTML templates. Mainly utility functions.
 from django_clement.template import template_function
 from django_clement.conf import settings
 from django import template
+from django.utils.html import conditional_escape
+from django.utils.safestring import mark_safe
 from django.http import QueryDict
 
 # Special object to allow django to recognize this
@@ -58,6 +60,19 @@ def inside(value, sequence):
     except:
         return False
 
+
+@register.filter
+def short_email(email, autoescape=None):
+    try:
+        idx = email.index('@')
+        if autoescape:
+            esc = conditional_escape
+        else:
+            esc = lambda x : x
+        return mark_safe("<abbr title=\"%s\">%s</abbr>" % (esc(email[idx:]), esc(email[:idx]),))
+    except ValueError:
+        return email
+short_email.needs_autoescape = True
 
 def urlp(name, *args, **kwargs):
     """
