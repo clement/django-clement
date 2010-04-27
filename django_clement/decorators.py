@@ -18,7 +18,9 @@ def method_only(func, method):
     @wraps(func)
     def _wrap(request, *args, **kwargs):
         if request.method != method:
-            raise Http404
+            resp = HttpResponse('Method not allowed: %s' % request.method)
+            resp.status_code = 405
+            return resp
         return func(request, *args, **kwargs)
     return _wrap
 
