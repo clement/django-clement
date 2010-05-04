@@ -16,7 +16,8 @@ class EagerLoadingQuerySet(QuerySet):
 
     def _clone(self, *args, **kwargs):
         c = super(EagerLoadingQuerySet, self)._clone(*args, **kwargs)
-        c.eager_loads = self.eager_loads
+        if hasattr(self, 'eager_loads'):
+            c.eager_loads = self.eager_loads
         return c
 
     def iterator(self):
