@@ -4,7 +4,9 @@ HTML templates. Mainly utility functions.
 """
 
 from django_clement.template import template_function
+from django_clement.conf import settings
 from django import template
+from django.http import QueryDict
 
 # Special object to allow django to recognize this
 # module as a template filter and tags module
@@ -89,3 +91,47 @@ def urlp(name, *args, **kwargs):
 urlp = register.tag(template_function(urlp, send_context=True))
 
 register.tag('eval', template_function(lambda x:x))
+
+
+@register.filter('gravatar')
+def gravatar_filter(email, arg=None):
+    """
+    filter version of the `gravatar` template tag
+    """
+    if arg and arg[0] == '?':
+        kwargs = {'s': None, 'd': None, 'r': None}
+        arg = arg[1:]
+    else:
+        kwargs = {'s': settings.GRAVATAR_DEFAULT_S,
+                  'd': settings.GRAVATAR_DEFAULT_D,
+                  'r': settings.GRAVATAR_DEFAULT_R }
+
+    kwargs.update(dict(QueryDict(arg).items()))
+    return gravatar_tag(email, **kwargs)
+
+def gravatar_tag(email, **kwargs):
+    """
+    Generate a gravatar URL for an email adress.
+
+    Allowed parameters are `s`, `d` and `r` as specified
+    in (gravatar documentation)[http://en.gravatar.com/site/implement/images/]
+    and their default value is controlled by configuration variables
+    `GRAVATAR_DEFAULT_*`
+
+    Also, the base gravatar server URL is specified in
+    `GRAVATAR_URL`.
+    """
+    for param in ('s', 'd', 'r',):
+        kwargs.setdefault(param, getattr(settings, 'GRAVATAR_DEFAULT_'+param.upper()))
+
+    import hashlib
+    url =  settings.GRAVATAR_URL + hashlib.md5(email.lower().strip()).hexdigest()
+    
+    if any(kwargs):
+        url += '?'
+        qd = QueryDict('', mutable=True)
+        qd.update(dict(filter(lambda (k,v) : v is not None, kwargs.items())))
+        url += qd.urlencode()
+
+    return url
+register.tag('gravatar', template_function(gravatar_tag))
