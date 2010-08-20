@@ -61,6 +61,14 @@ def inside(value, sequence):
         return False
 
 
+from django.template.defaultfilters import date as date_filter
+from datetime import datetime
+
+@register.filter
+def timestamp(value, arg=None):
+    return date_filter(datetime.fromtimestamp(value), arg)
+timestamp.is_safe = date_filter.is_safe
+
 @register.filter
 def short_email(email, autoescape=None):
     try:
