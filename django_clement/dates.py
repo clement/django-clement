@@ -3,6 +3,7 @@ try:
 except ImportError:
     from django.utils.functional import curry as partial # 2.3, 2.4 compat
 from datetime import *
+from time import *
 
 def force_day(weekday, day=date.today()):
     return day + timedelta(days=weekday - day.weekday())
