@@ -2,6 +2,7 @@
 Template filters used in `moderation` application
 HTML templates. Mainly utility functions.
 """
+import json
 
 from django_clement.template import template_function
 from django_clement.conf import settings
@@ -158,3 +159,8 @@ def gravatar_tag(email, **kwargs):
 
     return url
 register.tag('gravatar', template_function(gravatar_tag))
+
+
+@register.filter('json')
+def to_json(obj):
+    return mark_safe(json.dumps(obj))
