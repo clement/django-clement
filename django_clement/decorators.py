@@ -6,6 +6,7 @@ from django.http import Http404, HttpResponse
 from django.shortcuts import render_to_response
 from django.template.context import RequestContext
 from django.utils.functional import curry
+import json as json_
 
 
 def post_only(view):
@@ -43,6 +44,14 @@ def render_to(func=None, template_name_key='template', mimetype_key='mimetype'):
     else:
         return curried
 
+def json(f):
+    @wraps(f)
+    def _wrap(*args, **kwargs):
+        r = f(*args, **kwargs)
+        if not isinstance(r, HttpResponse):
+            r = HttpResponse(json_.dumps(r), mimetype='application/json')
+        return r
+    return _wrap
 
 def coerce(*coerce_funs):
     def real_decorator(func):
